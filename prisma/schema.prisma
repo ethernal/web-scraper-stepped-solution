@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String @id @default(cuid())
+  email     String @unique
+  firstName String
+  lastName  String
+}
+
+model ScrappedData {
+  id        String   @id @default(cuid())
+  url       String   @unique
+  price     Float
+  data      String // serialize and deserialize from string until support is added in prisma
+  dataType  String   @default("product")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
