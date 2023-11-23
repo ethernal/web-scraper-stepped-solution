@@ -1,15 +1,65 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import cheerio from 'cheerio';
+import fs from 'fs';
+import path from 'path';
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './src/lib/prisma';
 
-async function main(maxPages = 5) {
-  const prisma = new PrismaClient();
+async function createFile(name:string, response:AxiosResponse<any, any>) {
+  const file = fs.createWriteStream(`./public/images/${name}`);
+
+  return new Promise<boolean>((resolve, reject) => {
+    response.data.pipe(file);
+    file.on('finish',() => {
+        file.close();
+        resolve(true);
+
+      });
+    file.on('error', () => {file.close();
+        reject(false);
+      }
+    );
+  })
+}
+
+async function downloadFiles(downloadFiles: Array<string>) {
+  console.log(`Starting download of ${downloadFiles.length} files. This will take few minutes. Please be patient...`);
+
+  let fileDownloadCount = 0;
+
+  const dir='./public/images/'
+
+  if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  for (let i=0;i< downloadFiles.length;i++) {
+    const link = downloadFiles[i];
+    const name = path.basename(link);
+    const url = link
+    console.log('Downloading file: ' + name);
+
+    const response = await axios({
+      url,
+      method: 'GET',
+      responseType: 'stream'
+    });
+
+    const createdFile = await createFile(name, response);
+
+    if (createdFile) fileDownloadCount++;
+  }
+
+  console.log(`Finished downloading ${fileDownloadCount} of ${downloadFiles.length} files.`);
+}
+
+async function main(maxPages = 1) {
 
   // initialized with the webpage to visit
   const paginationURLsToVisit = ["https://scrapeme.live/shop"];
   const visitedURLs: Set<string> = new Set();
   const products = new Set();
+  const imageSrc = new Set<string>();
 
   // iterating until the queue is empty
   // or the iteration limit is hit
@@ -35,7 +85,6 @@ async function main(maxPages = 5) {
     // retrieving the pagination URLs
     $(".page-numbers a").each((index, element) => {
       const paginationURL = $(element).attr("href");
-
       // if the queue is empty, skip to the next element in the loop
       if (paginationURL === undefined) {
         return;
@@ -55,22 +104,27 @@ async function main(maxPages = 5) {
     // retrieving the product URLs
     $("li.product a.woocommerce-LoopProduct-link").each((index, element) => {
       // extract all information about the product
-
       const productURL = $(element).attr("href");
       const productImg = $(element).find("img").attr("src");
       const productName = $(element).find("h2").text();
       const productPrice = $(element).find(".woocommerce-Price-amount").text();
-      const productPriceCurrency = $(element)
-        .find(".woocommerce-Price-currencySymbol")
-        .text();
+      const productPriceCurrency = $(element).find(".woocommerce-Price-currencySymbol").text();
+
+
+      if (productImg !== undefined) {
+        imageSrc.add(productImg);
+      }
+
+      //when using vite relative path files are served from the public folder by default so there is no need to add the folder to the path - it will produce a warning in the console
+      const localProductImg = (productImg !== undefined) ? `./images/${path.basename(productImg)}` : productImg;
 
       const product = {
-        name: productName,
-        price: productPrice.replaceAll(productPriceCurrency, ""), // remove currency symbol from the price
-        currency: productPriceCurrency,
-        image: productImg,
-        url: productURL,
-      };
+          name: productName,
+          price: productPrice.replaceAll(productPriceCurrency, ""),
+          currency: productPriceCurrency,
+          image: localProductImg,
+          url: productURL
+      }
 
       products.add(product);
 
@@ -101,12 +155,13 @@ async function main(maxPages = 5) {
 
       // Here we're saving scrapped data to the database
       addData(product);
-
-      console.log(`Added: ${JSON.stringify(product, undefined, 2)}`);
     });
   }
 
   console.log("Products added.");
+  console.log('Downloading images...');
+  await downloadFiles(Array.from(imageSrc));
+  console.log('Done!');
 }
 
 main()
