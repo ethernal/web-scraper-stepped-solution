@@ -31,3 +31,6 @@ dist-ssr
 
 # prisma database location
 prisma/data
+
+#images
+public/images
