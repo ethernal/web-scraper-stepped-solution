@@ -53,7 +53,7 @@ async function downloadFiles(downloadFiles: Array<string>) {
   console.log(`Finished downloading ${fileDownloadCount} of ${downloadFiles.length} files.`);
 }
 
-async function main(maxPages = 1) {
+async function main(maxPages = 50) {
 
   // initialized with the webpage to visit
   const paginationURLsToVisit = ["https://scrapeme.live/shop"];
