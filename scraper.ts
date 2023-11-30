@@ -136,7 +136,7 @@ async function main(maxPages = 50) {
       const addData = async (data: typeof product) => {
         // use upsert to create row if it does not exist or update data if it has changed since last run
         // sqlite and prisma don't support createMany so we need to use per element inserts
-        await prisma.scrappedData.upsert({
+        await prisma.scrapedData.upsert({
           where: {
             url: data.url,
           },

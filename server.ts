@@ -39,7 +39,7 @@ app.get('/api/products', async (req, res) => {
   // declare a function that gets all data from the DB
   const fetchData = async () => {
 
-    const data = await prisma.scrappedData.findMany({
+    const data = await prisma.scrapedData.findMany({
       where: {
         price: {
           lte: maxPrice

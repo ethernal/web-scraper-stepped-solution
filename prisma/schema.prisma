@@ -17,7 +17,7 @@ model User {
   lastName  String
 }
 
-model ScrappedData {
+model ScrapedData {
   id        String   @id @default(cuid())
   url       String   @unique
   price     Float
