@@ -122,7 +122,7 @@ function App() {
 
           const metadata = JSON.parse(data.data);
           return (
-            <div key={data.url} className='border-slate-300 bg-slate-600 border-2 p-4 flex flex-col gap-2'>
+            <div key={data.url} data-testid="product" className='border-slate-300 bg-slate-600 border-2 p-4 flex flex-col gap-2'>
               <h1 className='text-4xl font-bold self-center'>{metadata.name}</h1>
               <img src={metadata.image} alt={metadata.name} />
               <p className='bg-slate-300 text-black p-2 inline-block rounded-lg self-start font-bold text-xl tracking-wide'>{metadata.currency}{data.price}</p>

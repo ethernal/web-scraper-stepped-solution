@@ -34,3 +34,7 @@ prisma/data
 
 #images
 public/images
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
