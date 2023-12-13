@@ -1,4 +1,4 @@
-# Demo project for scrapping website data
+# Demo project for scraping website data
 
 This is a demo project that shows how to scrape data from an external website, save it to local database and then serve data from local API express server and display it to the user using React frontend.
 
