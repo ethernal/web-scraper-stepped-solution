@@ -80,59 +80,76 @@ function App() {
   }
 
   return (
-    <>
-      <div className='py-8 sticky top-0 bg-slate-800 opacity-95'>
-        <div className='flex justify-center items-baseline gap-2'>
-          <label className='text-2xl font-bold' htmlFor='max-price'>Max Price: </label>
-          <input
-            id='max-price'
-            type="range"
-            min={25}
-            max={200}
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(parseInt(e.target.value))}
-            className="w-1/2"
-          />
-          <p className='text-2xl font-bold'>{maxPrice}</p>
-        </div>
-        <div className='flex justify-center items-baseline gap-2 mb-4 text-2xl'>
-          <label htmlFor='sort'>Sort (by price)</label>
-          <input type='checkbox'
-            className='text-2xl font-bold me-4 w-6 h-6' id="sort"
-            name="sort"
-            checked={sortOptions.sortBy === 'price' ? true : false}
-            aria-checked={sortOptions.sortBy === 'price' ? true : false}
-            onChange={handleSortByChange}
-          />
-          {/* dropdown to select asc or desc sort order for the query param */}
-          <select name="sortOrder" id="sortOrder" value={sortOptions.sortOrder} onChange={handleSortOrderChange}>
-            <option value="asc">Lowest first</option>
-            <option value="desc">Highest first</option>
-          </select>
+		<>
+			<div className="py-8 sticky top-0 bg-slate-800 opacity-95">
+				<div className="flex justify-center items-baseline gap-2">
+					<label className="text-2xl font-bold" htmlFor="max-price">
+						Max Price:{' '}
+					</label>
+					<input
+						id="max-price"
+						type="range"
+						min={25}
+						max={200}
+						value={maxPrice}
+						onChange={(e) => setMaxPrice(parseInt(e.target.value))}
+						className="w-1/2"
+					/>
+					<p className="text-2xl font-bold">{maxPrice}</p>
+				</div>
+				<div className="flex justify-center items-baseline gap-2 mb-4 text-2xl">
+					<label htmlFor="sort">Sort (by price)</label>
+					<input
+						type="checkbox"
+						className="text-2xl font-bold me-4 w-6 h-6"
+						id="sort"
+						name="sort"
+						checked={sortOptions.sortBy === 'price' ? true : false}
+						aria-checked={sortOptions.sortBy === 'price' ? true : false}
+						onChange={handleSortByChange}
+					/>
+					{/* dropdown to select asc or desc sort order for the query param */}
+					<select
+						name="sortOrder"
+						id="sortOrder"
+						value={sortOptions.sortOrder}
+						onChange={handleSortOrderChange}
+					>
+						<option value="asc">Lowest first</option>
+						<option value="desc">Highest first</option>
+					</select>
+				</div>
+				<div className="flex justify-center items-baseline gap-2">
+					<p className="text-2xl font-bold" data-testid="total-products">
+						Total Products: {products?.length}
+					</p>
+				</div>
+			</div>
 
-        </div>
-        <div className='flex justify-center items-baseline gap-2'>
-          <p className='text-2xl font-bold'>Total Products: {products?.length}</p>
-        </div>
-      </div>
-
-      {/* Products List */}
-      <div className='w-full grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 p-8'>
-        {products?.map((data) => {
-
-          const metadata = JSON.parse(data.data);
-          return (
-            <div key={data.url} data-testid="product" className='border-slate-300 bg-slate-600 border-2 p-4 flex flex-col gap-2'>
-              <h1 className='text-4xl font-bold self-center'>{metadata.name}</h1>
-              <img src={metadata.image} alt={metadata.name} />
-              <p className='bg-slate-300 text-black p-2 inline-block rounded-lg self-start font-bold text-xl tracking-wide'>{metadata.currency}{data.price}</p>
-            </div>
-          )
-        }
-        )}
-      </div>
-    </>
-  )
+			{/* Products List */}
+			<div className="w-full grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4 p-8">
+				{products?.map((data) => {
+					const metadata = JSON.parse(data.data);
+					return (
+						<div
+							key={data.url}
+							data-testid="product"
+							className="border-slate-300 bg-slate-600 border-2 p-4 flex flex-col gap-2"
+						>
+							<h1 className="text-4xl font-bold self-center">
+								{metadata.name}
+							</h1>
+							<img src={metadata.image} alt={metadata.name} />
+							<p className="bg-slate-300 text-black p-2 inline-block rounded-lg self-start font-bold text-xl tracking-wide">
+								{metadata.currency}
+								{data.price}
+							</p>
+						</div>
+					);
+				})}
+			</div>
+		</>
+	);
 }
 
 export default App
