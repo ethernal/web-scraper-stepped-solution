@@ -9,57 +9,46 @@ test('interface is present and working', async ({ page }) => {
 	await expect(page.locator('#root')).toContainText('Total Products: 258');
 });
 
-test.describe('increasing price range increases product count', () => {
+test('increasing price limits adds products', async ({ page }) => {
 	let numberOfInitialProducts = 0;
 	let numberOfProductsAfterPriceChange = -1;
+	await page.goto('http://localhost:5173/?price_lte=80');
 
-	test('increasing price limits adds products', async ({ page }) => {
-		await page.goto('http://localhost:5173/?price_lte=80');
+	const totalProductsInitial = await page
+		.getByText('Total Products: ')
+		.textContent();
 
-		const totalProductsInitial = await page
-			.getByText('Total Products: ')
-			.textContent();
+	test.fail(
+		totalProductsInitial === null,
+		'Total products label not found for initial count.',
+	);
 
-		if (totalProductsInitial === null) {
-			test.fail();
-			return;
-		}
+	numberOfInitialProducts = Number.parseInt(
+		totalProductsInitial?.replace('Total Products:', '').trim(),
+	);
 
-		console.log('totalProductsInitial: ', totalProductsInitial);
+	await page.getByLabel('Max Price:').fill('120');
+	// removing these expect statements fails the test - it's too fast
+	await expect(page.locator('#root')).not.toContainText(
+		`Total Products: ${numberOfInitialProducts}`,
+	);
 
-		numberOfInitialProducts = Number.parseInt(
-			totalProductsInitial?.replace('Total Products:', '').trim(),
-		);
+	const totalProductsAfterPriceChange = await page
+		.getByText('Total Products:')
+		.textContent();
 
-		await page.getByLabel('Max Price:').fill('120');
-		// removing these expect statements fails the test - it's too fast
-		await expect(page.locator('#root')).toContainText('Total Products: ');
+	test.fail(
+		totalProductsAfterPriceChange === null,
+		'Total products label not found after price change.',
+	);
 
-		const totalProductsAfterPriceChange = await page
-			.getByText('Total Products:')
-			.textContent();
+	numberOfProductsAfterPriceChange = Number.parseInt(
+		totalProductsAfterPriceChange.replace('Total Products: ', '').trim(),
+	);
 
-		if (totalProductsAfterPriceChange === null) {
-			test.fail();
-			return;
-		}
-
-		numberOfProductsAfterPriceChange = Number.parseInt(
-			totalProductsAfterPriceChange.replace('Total Products: ', '').trim(),
-		);
-
-		console.log(
-			'totalProductsAfterPriceChange: ',
-			totalProductsAfterPriceChange,
-		);
-
-		console.log('Total Products: ' + numberOfInitialProducts);
-		console.log('After Price ch: ' + numberOfProductsAfterPriceChange);
-
-		expect(numberOfProductsAfterPriceChange).toBeGreaterThan(
-			numberOfInitialProducts,
-		);
-	});
+	expect(numberOfProductsAfterPriceChange).toBeGreaterThan(
+		numberOfInitialProducts,
+	);
 });
 
 test('sorting changes the order of products', async ({ page }) => {
